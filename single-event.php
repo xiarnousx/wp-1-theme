@@ -22,6 +22,16 @@ while(have_posts()) {
                 </p>
             </div>
             <?php the_content(); ?>
+            <?php $relatedPrograms = get_field('related_programs'); ?>
+            <?php if (count($relatedPrograms) > 0): ?>
+                <hr class="section-break" />
+                <h2 class="headline headline--medium">Related Program(s)</h2>
+                <ul class="link-list min-list" >
+                <?php foreach($relatedPrograms as $program): ?>
+                    <li><a href="<?php echo get_the_permalink($program); ?>" ><?php echo get_the_title($program); ?></a></li>
+                <?php endforeach; ?>
+                </ul>
+            <?php endif; ?>
         </div>
     </div>
     <?php
