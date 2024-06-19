@@ -3,17 +3,17 @@ get_header();
 ?>
     <?php 
     university_pageBanner([
-      'title' => 'All Events',
-      'subtitle' => 'Now and Then'
+      'title' => 'All Programs',
+      'subtitle' => 'Learning Never Stop'
     ]);
     ?>
     <div class="container container--narrow page-section">
+        <ul class="link-list min-list">
         <?php while(have_posts()): the_post(); ?>
-        <?php get_template_part('template-parts/content', 'event'); ?>
+            <li><a href="<?php the_permalink(); ?>" ><?php the_title(); ?></a></li>    
         <?php endwhile; ?>
+        </ul>
         <?php echo paginate_links(); ?>
-        <hr class="section-break" />
-        <p><a href="<?php echo site_url('/past-events');?>" >Past Events</a></p>
     </div>
 
 <?php
