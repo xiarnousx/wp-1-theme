@@ -14,6 +14,7 @@ while(have_posts()) {
                 </p>
             </div>
             <?php the_content(); ?>
+        </div>
         <?php
             $rpEvents = new WP_Query([
             'posts_per_page' => -1,
@@ -25,7 +26,7 @@ while(have_posts()) {
             ]
           ]);
         ?>
-        <?php if($rpEvents->have_posts()): ?>
+        <?php if ($rpEvents->have_posts()): ?>
         <hr class="section-break" />
         <h2 class="headline headline--medium"><?php echo get_the_title(); ?> Professors</h2>
         <ul class="professor-cards">
@@ -63,7 +64,17 @@ while(have_posts()) {
           <?php endwhile; ?>
           <?php wp_reset_postdata(); ?>
           <?php endif; ?>
-        </div>
+          
+          <?php $relatedCampuses = get_field('related_campuses'); ?>
+          <?php if ($relatedCampuses): ?>
+            <hr  class="section-break"/>
+            <h2 class="headline headline--medium"><?php the_title(); ?> is available at these campuses:</h2>
+            <ul class="min-list link-list">
+            <?php foreach($relatedCampuses as $rc): ?>
+              <li><a href="<?php echo get_the_permalink($rc); ?>"><?php echo get_the_title($rc); ?></a></li>
+            <?php endforeach; ?>
+            </ul>
+          <?php endif; ?>
     </div>
     <?php
 }

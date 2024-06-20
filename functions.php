@@ -8,6 +8,7 @@ function university_files() {
     wp_enqueue_script('university_main_js', get_theme_file_uri('/build/index.js'), [
         'jquery'
     ], '1.0', true);
+    wp_enqueue_script('university_map_js', '//maps.googleapis.com/maps/api/js?key=AI', NULL, '1.0', true);
 }
 add_action('wp_enqueue_scripts', 'university_files');
 
@@ -25,7 +26,7 @@ function university_features() {
 add_action('after_setup_theme', 'university_features');
 
 function university_adjust_queries($query) {
-    if (!is_admin() && is_post_type_archive('event') && is_main_query()) {
+    if (!is_admin() && is_post_type_archive('event') && $query->is_main_query()) {
         $today = date('Ymd');
         $query->set('meta_key', 'event_date');
         $query->set('orderby', 'meta_value_num');
@@ -35,10 +36,14 @@ function university_adjust_queries($query) {
         ]);
     }
 
-    if (!is_admin() && is_post_type_archive('program') && is_main_query()) {
+    if (!is_admin() && is_post_type_archive('program') && $query->is_main_query()) {
         $query->set('posts_per_page', -1);
         $query->set('orderby', 'title');
         $query->set('order', 'ASC');
+    }
+
+    if (!is_admin() && is_post_type_archive('campus') && $query->is_main_query()) {
+        $query->set('posts_per_page', -1);
     }
 }
 
@@ -73,3 +78,12 @@ function university_pageBanner($args = []) {
     </div>
     <?php
 }
+// Google Map Js
+// Google Places
+// Google Locations
+function university_mapkey($api) {
+    $api['key'] = 'AI....';
+
+    return $api;
+}
+add_filter('acf/fields/google_map/api', 'university_mapkey');
