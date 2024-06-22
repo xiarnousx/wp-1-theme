@@ -12,104 +12,25 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _css_style_scss__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../css/style.scss */ "./css/style.scss");
 /* harmony import */ var _modules_MobileMenu__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./modules/MobileMenu */ "./src/modules/MobileMenu.js");
 /* harmony import */ var _modules_HeroSlider__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./modules/HeroSlider */ "./src/modules/HeroSlider.js");
-/* harmony import */ var _modules_GoogleMap__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./modules/GoogleMap */ "./src/modules/GoogleMap.js");
+/* harmony import */ var _modules_Search__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./modules/Search */ "./src/modules/Search.js");
 
 
 // Our modules / classes
 
 
+//import GoogleMap from "./modules/GoogleMap";
 
 
 // Instantiate a new object using our modules/classes
-const mobileMenu = new _modules_MobileMenu__WEBPACK_IMPORTED_MODULE_1__["default"]();
-const heroSlider = new _modules_HeroSlider__WEBPACK_IMPORTED_MODULE_2__["default"]();
+
 try {
-  const googleMap = new _modules_GoogleMap__WEBPACK_IMPORTED_MODULE_3__["default"]();
+  const mobileMenu = new _modules_MobileMenu__WEBPACK_IMPORTED_MODULE_1__["default"]();
+  const heroSlider = new _modules_HeroSlider__WEBPACK_IMPORTED_MODULE_2__["default"]();
+  const search = new _modules_Search__WEBPACK_IMPORTED_MODULE_3__["default"]();
+  //const googleMap = new GoogleMap();
 } catch (error) {
   console.log(error);
 }
-
-/***/ }),
-
-/***/ "./src/modules/GoogleMap.js":
-/*!**********************************!*\
-  !*** ./src/modules/GoogleMap.js ***!
-  \**********************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
-/* harmony export */ });
-class GMap {
-  constructor() {
-    document.querySelectorAll(".acf-map").forEach(el => {
-      this.new_map(el);
-    });
-  }
-  new_map($el) {
-    var $markers = $el.querySelectorAll(".marker");
-    var args = {
-      zoom: 16,
-      center: new google.maps.LatLng(0, 0),
-      mapTypeId: google.maps.MapTypeId.ROADMAP
-    };
-    var map = new google.maps.Map($el, args);
-    map.markers = [];
-    var that = this;
-
-    // add markers
-    $markers.forEach(function (x) {
-      that.add_marker(x, map);
-    });
-
-    // center map
-    this.center_map(map);
-  } // end new_map
-
-  add_marker($marker, map) {
-    var latlng = new google.maps.LatLng($marker.getAttribute("data-lat"), $marker.getAttribute("data-lng"));
-    var marker = new google.maps.Marker({
-      position: latlng,
-      map: map
-    });
-    map.markers.push(marker);
-
-    // if marker contains HTML, add it to an infoWindow
-    if ($marker.innerHTML) {
-      // create info window
-      var infowindow = new google.maps.InfoWindow({
-        content: $marker.innerHTML
-      });
-
-      // show info window when marker is clicked
-      google.maps.event.addListener(marker, "click", function () {
-        infowindow.open(map, marker);
-      });
-    }
-  } // end add_marker
-
-  center_map(map) {
-    var bounds = new google.maps.LatLngBounds();
-
-    // loop through all markers and create bounds
-    map.markers.forEach(function (marker) {
-      var latlng = new google.maps.LatLng(marker.position.lat(), marker.position.lng());
-      bounds.extend(latlng);
-    });
-
-    // only 1 marker?
-    if (map.markers.length == 1) {
-      // set center of map
-      map.setCenter(bounds.getCenter());
-      map.setZoom(16);
-    } else {
-      // fit to bounds
-      map.fitBounds(bounds);
-    }
-  } // end center_map
-}
-/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (GMap);
 
 /***/ }),
 
@@ -183,6 +104,80 @@ class MobileMenu {
 
 /***/ }),
 
+/***/ "./src/modules/Search.js":
+/*!*******************************!*\
+  !*** ./src/modules/Search.js ***!
+  \*******************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ Search)
+/* harmony export */ });
+/* harmony import */ var jquery__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! jquery */ "jquery");
+/* harmony import */ var jquery__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(jquery__WEBPACK_IMPORTED_MODULE_0__);
+
+class Search {
+  //1. inistantiate
+  constructor() {
+    this.openButton = jquery__WEBPACK_IMPORTED_MODULE_0___default()(".js-search-trigger");
+    this.closeButton = jquery__WEBPACK_IMPORTED_MODULE_0___default()(".search-overlay__close");
+    this.searchOverlay = jquery__WEBPACK_IMPORTED_MODULE_0___default()(".search-overlay");
+    this.searchField = jquery__WEBPACK_IMPORTED_MODULE_0___default()("#search-term");
+    this.resultsDiv = jquery__WEBPACK_IMPORTED_MODULE_0___default()("#search-overlay__results");
+    this.isOverlayOpen = false;
+    this.isSpinnerVisible = false;
+    this.typingTimer;
+    this.previousValue;
+    this.events();
+  }
+
+  // 2. events
+  events() {
+    this.openButton.on("click", this.openOverlay.bind(this));
+    this.closeButton.on("click", this.closeOverlay.bind(this));
+    this.searchField.on("keyup", this.typingLogic.bind(this));
+    jquery__WEBPACK_IMPORTED_MODULE_0___default()(document).on("keydown", this.keyPressDispatcher.bind(this));
+  }
+
+  // 3. methods and functions
+  typingLogic(e) {
+    if (this.searchField.val() === this.previousValue) return;
+    clearTimeout(this.typingTimer);
+    if (this.searchField.val()) {
+      if (!this.isSpinnerVisible) {
+        this.resultsDiv.html('<div class="spinner-loader"></div>');
+        this.isSpinnerVisible = true;
+      }
+      this.typingTimer = setTimeout(this.getResults.bind(this), 2000);
+      this.previousValue = this.searchField.val();
+    } else {
+      this.resultsDiv.html('');
+      this.isSpinnerVisible = false;
+    }
+  }
+  getResults() {
+    this.resultsDiv.html("Imagine!");
+    this.isSpinnerVisible = false;
+  }
+  openOverlay() {
+    this.searchOverlay.addClass("search-overlay--active");
+    jquery__WEBPACK_IMPORTED_MODULE_0___default()("body").addClass("body-no-scroll");
+    this.isOverlayOpen = true;
+  }
+  closeOverlay() {
+    this.searchOverlay.removeClass("search-overlay--active");
+    jquery__WEBPACK_IMPORTED_MODULE_0___default()("body").removeClass("body-no-scroll");
+    this.isOverlayOpen = false;
+  }
+  keyPressDispatcher(e) {
+    if (e.keyCode === 83 && !this.isOverlayOpen && !jquery__WEBPACK_IMPORTED_MODULE_0___default()("input, textarea").is(":focus")) return this.openOverlay();
+    if (e.keyCode === 27 && this.isOverlayOpen && !jquery__WEBPACK_IMPORTED_MODULE_0___default()("input, textarea").is(":focus")) return this.closeOverlay();
+  }
+}
+
+/***/ }),
+
 /***/ "./css/style.scss":
 /*!************************!*\
   !*** ./css/style.scss ***!
@@ -192,6 +187,16 @@ class MobileMenu {
 __webpack_require__.r(__webpack_exports__);
 // extracted by mini-css-extract-plugin
 
+
+/***/ }),
+
+/***/ "jquery":
+/*!*************************!*\
+  !*** external "jQuery" ***!
+  \*************************/
+/***/ ((module) => {
+
+module.exports = window["jQuery"];
 
 /***/ }),
 
@@ -4246,6 +4251,18 @@ var Glide = /*#__PURE__*/function (_Core) {
 /******/ 				}
 /******/ 			}
 /******/ 			return result;
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/compat get default export */
+/******/ 	(() => {
+/******/ 		// getDefaultExport function for compatibility with non-harmony modules
+/******/ 		__webpack_require__.n = (module) => {
+/******/ 			var getter = module && module.__esModule ?
+/******/ 				() => (module['default']) :
+/******/ 				() => (module);
+/******/ 			__webpack_require__.d(getter, { a: getter });
+/******/ 			return getter;
 /******/ 		};
 /******/ 	})();
 /******/ 	
