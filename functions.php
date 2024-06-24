@@ -9,6 +9,9 @@ function university_files() {
         'jquery'
     ], '1.0', true);
     //wp_enqueue_script('university_map_js', '//maps.googleapis.com/maps/api/js?key=AI', NULL, '1.0', true);
+    wp_localize_script('university_main_js', 'universityData', [
+        'root_url' => get_site_url(),
+    ]);
 }
 add_action('wp_enqueue_scripts', 'university_files');
 
