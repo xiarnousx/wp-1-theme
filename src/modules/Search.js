@@ -55,7 +55,7 @@ export default class Search {
             if (combined.length) {
                 items = `
                     <ul class="link-list min-list" >   
-                        ${combined.map((item) => `<li><a href="${item.link}">${item.title.rendered}</a></li>`).join('')}
+                        ${combined.map((item) => `<li><a href="${item.link}">${item.title.rendered}</a> ${item.type === 'post' ? 'by ' + item.authorName : ''}</li>`).join('')}
                     </ul>
                     `;
             }

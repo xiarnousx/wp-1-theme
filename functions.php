@@ -1,4 +1,15 @@
 <?php
+require get_theme_file_path('/inc/search-route.php');
+
+function unversity_custom_rest() {
+    register_rest_field('post', 'authorName', [
+        'get_callback' => function() {
+            return get_the_author();
+        }
+    ]);
+}
+
+add_action('rest_api_init', 'unversity_custom_rest');
 
 function university_files() {
     wp_enqueue_style('google-font', '//fonts.googleapis.com/css?family=Roboto+Condensed:300,300i,400,400i,700,700i|Roboto:100,300,400,400i,700,700i');
