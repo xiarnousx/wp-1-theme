@@ -1,4 +1,4 @@
-import $, { post } from "jquery";
+import $ from "jquery";
 
 export default class Search {
   //1. inistantiate
@@ -159,6 +159,7 @@ export default class Search {
     this.isOverlayOpen = true;
     this.searchField.val("");
     setTimeout(() => this.searchField.trigger("focus"), 301);
+    return false;
   }
 
   closeOverlay() {
